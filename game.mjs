@@ -76,7 +76,7 @@ const invaders = {
   ]
 }
 
-const invadersPerRow = 8;
+const invadersPerRow = 9;
 
 // ------
 
@@ -219,13 +219,13 @@ function updateinvaders() {
 
 
 
-  for (let i = 0; i < invadersPerRow; i++) {
+  for (let i = 0; i < invaders.entities.length; i++) {
     let invader = invaders.entities[i];
 
-    if (invaders.active) {
+    if (invader.active) {
 
-      invaders.x += tx;
-      invaders.y += ty;
+      invader.x += tx;
+      invader.y += ty;
 
       if (isShot(invader)) {
         invader.active = false;
