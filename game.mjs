@@ -116,7 +116,8 @@ window.addEventListener("keyup", function (e) {
 
 //#region Game engine ----------------------------------------------------------------
 
-function init() {
+function spawnNewWave() {
+  invaders.entities = [];
   let invaderRowNumber = 0;
   for(let invaderColor of invaders.invaderColors){
     let x = invaders.sx;
@@ -127,7 +128,12 @@ function init() {
     }
     invaderRowNumber += 1;
   }
+  movmentSteps = maxMovmentSteps;
+}
 
+function init() {
+  
+  spawnNewWave();
   invaders.speed = 1;
 
   currentState = STATES.MENU;
@@ -246,7 +252,19 @@ function drawMenu() {
   }
 }
 
+function checkInvadersAlive(){
+    for(let currentInvader of invaders.entities){
+      if(currentInvader.active){ return false; }
+    }
+    return true;
+}
+
 function updateinvaders() {
+
+  if (checkInvadersAlive()){
+      console.log("h");
+      spawnNewWave();
+  }
 
   let ty = 0;
 
