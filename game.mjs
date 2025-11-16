@@ -5,7 +5,7 @@ const brush = getBrush();
 
 //#region CONSTANTS ------------------------------------------------------------------
 const FPS = 1000 / 60;
-const STATES = { MENU: 1, PLAY: 2, GAMEOVER: 3 }
+const STATES = { MENU: 1, PLAY: 2, GAMEOVER: 3, HIGHSCORE: 4}
 
 const PADDING = 10;
 const LEFT = PADDING;
@@ -14,6 +14,7 @@ const BOTTOM = scene.height - PADDING;
 //#endregion
 
 let currentState = STATES.MENU;
+let currentHighScore = 0; 
 
 const MENU = {
   currentIndex: 0,
@@ -38,12 +39,19 @@ const ship = {
   bulletOutline: "#00e1ffff"
 }
 
-const scoreboard = {
+const playerScore = {
   x : LEFT,
   y : BOTTOM,
   color : "#8faff2",
   font : "40px Comic Sans MS",
-  text : 0,
+  score : 0,
+}
+
+const gameoverScreen = {
+  x : 80,
+  y : 200,
+  font : "50px Comic-Sans",
+  color : "#fff",
 }
 
 // ------
@@ -109,7 +117,6 @@ window.addEventListener("keyup", function (e) {
 //#region Game engine ----------------------------------------------------------------
 
 function init() {
-
   let invaderRowNumber = 0;
   for(let invaderColor of invaders.invaderColors){
     let x = invaders.sx;
@@ -129,10 +136,20 @@ function init() {
 
 function update(time) {
 
-  if (currentState === STATES.MENU) {
-    updateMenu(time);
-  } else if (currentState === STATES.PLAY) {
-    updateGame(time);
+  //Decide gamestate
+  switch(currentState){
+    case STATES.MENU:
+      updateMenu();
+      break;
+    case STATES.PLAY:
+      updateGame();
+      break;
+    case STATES.GAMEOVER:
+      //updateGameOver();
+      break;
+    case STATES.HIGHSCORE:
+      updateHighScore();
+      break;
   }
 
   draw(); 
@@ -142,10 +159,19 @@ function update(time) {
 function draw() {
   clearScreen();
 
-  if (currentState === STATES.MENU) {
-    drawMenu();
-  } else if (currentState === STATES.PLAY) {
-    drawGameState();
+  switch(currentState){
+    case STATES.MENU:
+      drawMenu();
+      break;
+    case STATES.PLAY:
+      drawGame();
+      break;
+    case STATES.GAMEOVER:
+      drawGameOver();
+      break;
+    case STATES.HIGHSCORE:
+      drawHighScore();
+      break;
   }
 
 }
@@ -156,6 +182,23 @@ init(); // Starts the game
 
 
 //#region Game functions
+
+function drawGameOver(){
+  //Display GameOver screen
+
+  brush.fillStyle = gameoverScreen.color;
+  brush.font = gameoverScreen.font;
+  brush.fillText("Game Over! You did well!", gameoverScreen.x, gameoverScreen.y);
+  brush.fillText("Finale Score: " + playerScore.score, gameoverScreen.x, gameoverScreen.y + 60);
+
+  //check for new high score
+  if (playerScore.score > currentHighScore){
+    currentHighScore = playerScore.score
+    brush.fillText("NEW HIGHSCORE", gameoverScreen.x, gameoverScreen.y + 150);
+
+  }
+  brush.fillText("HighScore: " + currentHighScore, gameoverScreen.x, gameoverScreen.y + 90);
+}
 
 function updateMenu(dt) {
 
@@ -175,6 +218,16 @@ function updateMenu(dt) {
 
 }
 
+function updateGame(dt) {
+  updateShip();
+  updateProjectiles();
+  updateinvaders();
+  if (isGameOver()) {
+    currentState = STATES.GAMEOVER;
+    setTimeout(() => {currentState = STATES.MENU},3000);
+  }
+}
+
 function drawMenu() {
   let sy = 100;
   for (let i = 0; i < MENU.buttons.length; i++) {
@@ -190,15 +243,6 @@ function drawMenu() {
     brush.fillText(text, 100, sy);
     sy += 50;
 
-  }
-}
-
-function updateGame(dt) {
-  updateShip();
-  updateProjectiles();
-  updateinvaders();
-  if (isGameOver()) {
-    currentState = STATES.GAMEOVER;
   }
 }
 
@@ -229,7 +273,7 @@ function updateinvaders() {
 
       if (isShot(invader)) {
         invader.active = false;
-        scoreboard.text += 10;
+        playerScore.score += 10;
       }
 
     }
@@ -242,7 +286,8 @@ function updateinvaders() {
 
 function isGameOver() {
   for (let currentInvader of invaders.entities) {
-    if (currentInvader.x + invaders.width == ship.x && currentInvader.y + invaders.height  >= ship.y) {
+    if (currentInvader.active && currentInvader.y + invaders.height  >= ship.y) {
+      //Game over, player loose
       return true;
     }
   }
@@ -298,14 +343,13 @@ function updateProjectiles() {
   projectiles = activeProjectiles;
 }
 
-function drawGameState() {
+function drawGame() {
 
 
-  //Draw scoreboard
-
-  brush.fillStyle = scoreboard.color;
-  brush.font = scoreboard.font;
-  brush.fillText("Score: " + scoreboard.text, scoreboard.x, scoreboard.y);
+  //Draw current score 
+  brush.fillStyle = playerScore.color;
+  brush.font = playerScore.font;
+  brush.fillText("Score: " + playerScore.score, playerScore.x, playerScore.y);
 
 
   //Draw Ship
@@ -336,7 +380,7 @@ function startPlay() {
 }
 
 function showHigScores() {
-
+  currentState = STATES.HIGHSCORE;
 }
 
 //#endregion
