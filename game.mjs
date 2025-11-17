@@ -51,7 +51,7 @@ const gameoverScreen = {
   x : 80,
   y : 200,
   font : "50px Comic-Sans",
-  color : "#fff",
+  color : "#000000ff",
 }
 
 // ------
@@ -59,7 +59,7 @@ const gameoverScreen = {
 const projectieWidth = 5;
 const projectileHeight = 7;
 const projectileSpeed = 2;
-const projectileCooldown = 60;
+const projectileCooldown = 30;
 let cooldown = 0;
 let projectiles = [];
 
@@ -191,19 +191,20 @@ init(); // Starts the game
 
 function drawGameOver(){
   //Display GameOver screen
+  spawnNewWave();
 
   brush.fillStyle = gameoverScreen.color;
   brush.font = gameoverScreen.font;
   brush.fillText("Game Over! You did well!", gameoverScreen.x, gameoverScreen.y);
-  brush.fillText("Finale Score: " + playerScore.score, gameoverScreen.x, gameoverScreen.y + 60);
+  brush.fillText("Finale Score: " + playerScore.score, gameoverScreen.x, gameoverScreen.y + 90);
 
   //check for new high score
   if (playerScore.score > currentHighScore){
     currentHighScore = playerScore.score
-    brush.fillText("NEW HIGHSCORE", gameoverScreen.x, gameoverScreen.y + 150);
+    brush.fillText("NEW HIGHSCORE", gameoverScreen.x, gameoverScreen.y + 450);
 
   }
-  brush.fillText("HighScore: " + currentHighScore, gameoverScreen.x, gameoverScreen.y + 90);
+  brush.fillText("HighScore: " + currentHighScore, gameoverScreen.x, gameoverScreen.y + 220);
 }
 
 function updateMenu(dt) {
